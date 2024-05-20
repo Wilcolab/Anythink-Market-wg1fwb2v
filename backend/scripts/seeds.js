@@ -1,4 +1,8 @@
 const mongoose = require("mongoose");
+require("../models/User");
+require("../models/Item");
+require("../models/Comment");
+
 mongoose.connect(process.env.MONGODB_URI);
 
 const User = mongoose.model("User");
@@ -39,16 +43,22 @@ async function seedDB() {
         const user = mockUser(`user${i}`);
         const newUser = await User.findOneAndUpdate(user, {}, options);
 
-        const item = mockItem(index, newUser);
+        const item = mockItem(i, newUser.id);
         const newItem = await Item.findOneAndUpdate(item, {}, options);
 
-        const comment = mockComment(index, newUser, newItem);
+        const comment = mockComment(i, newUser.id, newItem.id);
         await Comment.findOneAndUpdate(comment, {}, options);
     }
 }
 
 seedDB().then(() => {
+    console.log('********************************************');
     console.log('Seeded Database');
+    console.log('********************************************');
+    process.exit(0);
 }).catch((error) => {
+    console.log('********************************************');
     console.log(`Error while seeding database: ${error.message}`);
+    console.log('********************************************');
+    process.exit(1);
 })
